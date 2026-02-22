@@ -98,21 +98,22 @@ func generateInvokerFile(gen *protogen.Plugin, file *protogen.File, isSimple boo
 		g.P("}")
 		g.P()
 
+		g.P("// New", structName, " creates a new invoker for ", handlerName)
 		g.P("func New", structName, "(svc ", handlerName, ") *", structName, " {")
 		g.P("	return &", structName, "{svc: svc}")
 		g.P("}")
 		g.P()
 
-		g.P("// Invoke calls the specified unary method using a raw binary Protobuf payload.")
-		g.P("func (i *", structName, ") Invoke(ctx ", g.QualifiedGoIdent(ctxIdent), ", method string, payload []byte) (any, error) {")
-		g.P("	switch method {")
+		g.P("// Invoke calls the specified unary fully-qualified procedure using a raw binary protobuf payload.")
+		g.P("func (i *", structName, ") Invoke(ctx ", g.QualifiedGoIdent(ctxIdent), ", procedure string, payload []byte) (any, error) {")
+		g.P("	switch procedure {")
 
 		for _, method := range service.Methods {
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 				continue
 			}
 
-			g.P("	case \"", method.GoName, "\":")
+			g.P("	case ", service.GoName, method.GoName, "Procedure:")
 			inputName := g.QualifiedGoIdent(method.Input.GoIdent)
 
 			g.P("		req := &", inputName, "{}")
@@ -128,7 +129,7 @@ func generateInvokerFile(gen *protogen.Plugin, file *protogen.File, isSimple boo
 		}
 
 		g.P("	default:")
-		g.P("		return nil, ", g.QualifiedGoIdent(fmtIdent), "(\"method %s not found in ", serviceName, "\", method)")
+		g.P("		return nil, ", g.QualifiedGoIdent(fmtIdent), "(\"unary procedure %s not found in ", serviceName, "\", procedure)")
 		g.P("	}")
 		g.P("}")
 		g.P()
