@@ -129,7 +129,7 @@ func generateInvokerFile(gen *protogen.Plugin, file *protogen.File, isSimple boo
 		}
 
 		g.P("	default:")
-		g.P("		return nil, ", g.QualifiedGoIdent(fmtIdent), "(\"unary procedure %s not found in ", serviceName, "\", procedure)")
+		g.P("		return nil, ", g.QualifiedGoIdent(fmtIdent), "(\"unary procedure %s not found in service ", service.Desc.FullName(), "\", procedure)")
 		g.P("	}")
 		g.P("}")
 		g.P()
